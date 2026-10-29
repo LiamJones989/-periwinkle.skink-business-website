@@ -1,26 +1,25 @@
 
-/* 
- * Periwinkle Skink
- * Website interactions and functionality
- */
+/* ==========================================
+   PERIWINKLE SKINK
+   Website JavaScript
+   ========================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
 
     // ==========================================
-    // MOBILE NAVIGATION MENU
+    // MOBILE NAVIGATION
     // ==========================================
 
     const menuToggle = document.querySelector(".menu-toggle");
     const nav = document.querySelector("#main-nav");
 
-    // Open and close the mobile navigation
     if (menuToggle && nav) {
 
+        // Open and close the mobile menu
         menuToggle.addEventListener("click", () => {
 
             const isOpen = nav.classList.toggle("open");
 
-            // Update accessibility information
             menuToggle.setAttribute(
                 "aria-expanded",
                 String(isOpen)
@@ -33,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         });
 
-        // Close the menu after clicking a navigation link
+        // Close the menu when a navigation link is clicked
         nav.querySelectorAll("a").forEach((link) => {
 
             link.addEventListener("click", () => {
@@ -54,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         });
 
-        // Close the menu when clicking outside of it
+        // Close the menu when clicking outside it
         document.addEventListener("click", (event) => {
 
             const clickedInsideNav = nav.contains(event.target);
@@ -78,10 +77,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         });
 
-        // Close the menu when the Escape key is pressed
+        // Close the menu when Escape is pressed
         document.addEventListener("keydown", (event) => {
 
-            if (event.key === "Escape") {
+            if (event.key === "Escape" && nav.classList.contains("open")) {
 
                 nav.classList.remove("open");
 
@@ -101,6 +100,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         });
 
+        // Close the mobile menu when switching to desktop width
+        window.addEventListener("resize", () => {
+
+            if (window.innerWidth > 700) {
+
+                nav.classList.remove("open");
+
+                menuToggle.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+                menuToggle.setAttribute(
+                    "aria-label",
+                    "Open navigation"
+                );
+
+            }
+
+        });
+
     }
 
 
@@ -114,33 +134,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     galleryImages.forEach((img) => {
 
-        // Show a decorative fallback if an image cannot load
-        img.addEventListener("error", () => {
+        // Show a decorative fallback if an image fails to load
+        const showImageFallback = () => {
 
             const galleryItem = img.closest(".gallery-item");
 
             if (galleryItem) {
 
                 galleryItem.classList.add("image-missing");
-
                 img.style.display = "none";
 
             }
 
-        });
+        };
 
-        // Handle an image that failed before this listener was added
+        img.addEventListener("error", showImageFallback);
+
+        // Handle images that failed before the listener was added
         if (img.complete && img.naturalWidth === 0) {
 
-            const galleryItem = img.closest(".gallery-item");
-
-            if (galleryItem) {
-
-                galleryItem.classList.add("image-missing");
-
-                img.style.display = "none";
-
-            }
+            showImageFallback();
 
         }
 
@@ -161,12 +174,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ==========================================
-    // SMOOTH NAVIGATION
+    // SMOOTH SECTION NAVIGATION
     // ==========================================
-
-    // Smooth scrolling is also enabled in style.css.
-    // This fallback supports browsers where CSS smooth
-    // scrolling is not available.
 
     document.querySelectorAll('a[href^="#"]').forEach((link) => {
 
@@ -174,30 +183,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const targetId = link.getAttribute("href");
 
-            // Ignore empty links
+            // Ignore empty anchor links
             if (!targetId || targetId === "#") {
                 return;
             }
 
             const targetElement = document.querySelector(targetId);
 
-            if (targetElement) {
+            if (!targetElement) {
+                return;
+            }
 
-                event.preventDefault();
+            event.preventDefault();
 
-                targetElement.scrollIntoView({
-                    behavior: window.matchMedia(
-                        "(prefers-reduced-motion: reduce)"
-                    ).matches ? "auto" : "smooth",
-                    block: "start"
-                });
+            // Respect the visitor's reduced-motion preference
+            const reduceMotion = window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            ).matches;
 
-                // Update the URL without creating a page reload
-                if (window.location.hash !== targetId) {
+            targetElement.scrollIntoView({
+                behavior: reduceMotion ? "auto" : "smooth",
+                block: "start"
+            });
 
-                    history.replaceState(null, "", targetId);
+            // Update the address bar without reloading the page
+            if (window.location.hash !== targetId) {
 
-                }
+                history.replaceState(null, "", targetId);
 
             }
 
